@@ -1,12 +1,9 @@
 'use strict';
 
-const {
-  Schema,
-  model
-} = require('mongoose');
+const mongoose = require('mongoose');
 const validator = require('validator');
 
-const patientSchema = Schema({
+const patientSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -35,6 +32,6 @@ const patientSchema = Schema({
   }
 });
 
-const Patient = model('Patient', patientSchema);
+const Patient = mongoose.model('Patient', patientSchema);
 
 module.exports = Patient;
