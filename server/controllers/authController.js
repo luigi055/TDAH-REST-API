@@ -46,8 +46,30 @@ function logoutUser(req, res) {
   }).catch(err => res.status(400).send());
 }
 
-function changeData(req, res) {
+function modifyUser(req, res) {
+  const {
+    body,
+    token,
+  } = req;
+  var hashed;
 
+  User.findByIdAndUpdate(req.user._id, {
+    $set: body,
+  }, {
+    $new: true,
+  }).then(user => {
+    if (!user) return res.status(404).send();
+
+    if (body.password) {
+      // remove token after change password
+      req.user.removeToken(token).then(() => {
+        res.send();
+      }).catch(err => res.status(400).send());
+    } else {
+      res.send(user);
+    }
+
+  }).catch(err => res.status(400).send());
 }
 
 module.exports = {
@@ -55,4 +77,5 @@ module.exports = {
   getUser,
   loginUser,
   logoutUser,
+  modifyUser,
 }

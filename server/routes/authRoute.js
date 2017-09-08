@@ -9,5 +9,5 @@ module.exports = app => {
   app.post(`${mainRoute}/login`, authController.loginUser);
   app.get(`${mainRoute}/me`, auth, authController.getUser);
   app.delete(`${mainRoute}/logout`, auth, authController.logoutUser);
-  app.patch(`${mainRoute}/me`, auth, authController.getUser);
+  app.put(`${mainRoute}/me`, auth, authController.modifyUser);
 }

@@ -70,6 +70,7 @@ UserSchema.methods.toJSON = function () {
   return {
     _id,
     email,
+    password: userObject.password,
     displayName,
     avatar,
     signupDate,
@@ -87,6 +88,8 @@ UserSchema.methods.generateAuthToken = function () {
     process.env.JWT_SECRET
   ).toString();
 
+  // Update last login
+  user.lastLogin = new Date();
   user.tokens.push({
     access,
     token,
@@ -108,8 +111,6 @@ UserSchema.methods.removeToken = function (token) {
       }
     }
   })
-
-
 }
 
 UserSchema.statics.findByToken = function (token) {
@@ -179,6 +180,32 @@ UserSchema.pre('save', function (next) {
     // if nothing was modified then go next
     next();
   }
+});
+// encrypting our password with bcrypt.js
+UserSchema.pre('update', function (next) {
+  const user = this;
+  // console.log(user.password)
+  next();
+
+  // Let's check if the password was modified
+  // we'll use a built in method for this
+
+  // if (user.isModified('password')) {
+  //   bcrypt.genSalt(10, (err, salt) => {
+  //     // Hashing password
+  //     bcrypt.hash(user.password, salt, (err, hash) => {
+  //       // if the user password is the same as hash then
+  //       // password will have a new value which is the encrypted
+  //       if (bcrypt.compare(user.password, hash)) {
+  //         user.password = hash
+  //         next();
+  //       }
+  //     });
+  //   });
+  // } else {
+  //   // if nothing was modified then go next
+  //   next();
+  // }
 });
 
 const User = mongoose.model('User', UserSchema);

@@ -12,3 +12,4 @@ bcrypt.genSalt(10, (err, salt) => {
     })
   });
 });
+console.log(bcrypt.compare('123abc!5', '$2a$10$4Ko6bFQsvMdWAqKU5UXzQ.oMC4P5TC1wqtXGyjor5G8eJiEvBJGra'));
