@@ -1,5 +1,5 @@
-const expect = require('chai').expect;
-const request = require('supertest');
+const chai = require('chai');
+const chaiHTTP = require('chai-http');
 const bcrypt = require('bcryptjs')
 const app = require('./../server');
 const User = require('./../models/user');
@@ -7,6 +7,9 @@ const {
   users,
   populateUsers
 } = require('./seed/seed');
+
+const expect = chai.expect;
+chai.use(chaiHTTP);
 
 populateUsers();
 
@@ -16,18 +19,17 @@ describe('POST /api/advisor', () => {
     const email = 'luigi4@test.com';
     const password = '123abc!';
 
-    request(app)
+    chai.request(app)
       .post('/api/advisor')
       .send({
         email,
         password
       })
-      .expect(200)
-      .expect(res => {
-        expect(res.header['x-auth']).to.exist;
-        expect(res.body.email).to.be.equal('luigi4@test.com')
-      })
       .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.header['x-auth']).to.exist;
+        expect(res.body.email).to.be.equal('luigi4@test.com');
+
         if (err) return done(err);
         // We'll find the new user created
         User.findOne({
@@ -47,14 +49,16 @@ describe('POST /api/advisor', () => {
   });
 
   it('should get error 400 if invalid user and passowrd', done => {
-    request(app)
+    chai.request(app)
       .post('/api/advisor')
       .send({
         email: 'john@mai',
         password: '45s'
       })
-      .expect(400)
-      .end(done);
+      .end((err, res) => {
+        expect(res).to.have.status(400);
+        done();
+      });
   });
 
   it('should get error 400 if email already in use', done => {
@@ -63,32 +67,33 @@ describe('POST /api/advisor', () => {
       password,
     } = users[0];
 
-    request(app)
+    chai.request(app)
       .post('/api/advisor')
       .send({
         email,
         password,
       })
-      .expect(400)
-      .end(done);
-  })
+      .end((err, res) => {
+        expect(res).to.have.status(400);
+        done();
+      });
+  });
 });
 
 describe('POST /api/advisor/login', () => {
   it('should login an existing user', done => {
-    request(app)
+    chai.request(app)
       .post('/api/advisor/login')
       .send({
         email: users[1].email,
         password: users[1].password,
       })
-      .expect(200)
-      .expect((res) => {
+      .end((err, res) => {
+        expect(res).to.have.status(200);
         expect(res.header['x-auth']).to.exist;
         expect(res.body._id).to.be.a('string').that.is.equal(users[1]._id.toHexString());
         expect(res.body.email).to.be.equal(users[1].email);
-      })
-      .end((err, res) => {
+
         if (err) return done(err);
 
         User.findById(users[1]._id).then(user => {
@@ -103,75 +108,84 @@ describe('POST /api/advisor/login', () => {
   });
 
   it('should not login if any data is incorrect', done => {
-    request(app)
+    chai.request(app)
       .post('/api/advisor/login')
       .send({
         email: 'luigi@test',
         password: '123',
       })
-      .expect(404)
-      .end(done);
+      .end((err, res) => {
+        expect(res).to.have.status(404);
+        done();
+      });
   });
 
   it('should not login if user not found', done => {
-    request(app)
+    chai.request(app)
       .post('/api/advisor/login')
       .send({
         email: 'saitama@hotmail.com',
         password: '123abc!',
       })
-      .expect(404)
-      .end(done);
+      .end((err, res) => {
+        expect(res).to.have.status(404);
+        done();
+      });
   });
 });
 
 describe('GET /api/advisor/me', () => {
   it('should get the current logedin user', done => {
-    request(app)
+    chai.request(app)
       .get('/api/advisor/me')
       .set('x-auth', users[0].tokens[0].token)
-      .expect(200)
-      .end(done);
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        done();
+      });
   });
 
   it('should not get the current loggedin user if not authenticated', done => {
-    request(app)
+    chai.request(app)
       .get('/api/advisor/me')
-      .expect(401)
-      .end(done);
+      .end((err, res) => {
+        expect(res).to.have.status(401);
+        done();
+      });
   });
 });
 
 describe('GET /api/advisor/all', () => {
   it('should get all exiting users', done => {
-    request(app)
+    chai.request(app)
       .get('/api/advisor/all')
       .set('x-auth', users[0].tokens[0].token)
-      .expect(200)
-      .expect(res => {
+      .end((err, res) => {
+        expect(res).to.have.status(200);
         expect(res.body).to.be.an('array').that.have.lengthOf(3); // post test created an user
-      })
-      .end(done);
+        done();
+      });
   });
 
   it('should not get all users if not authenticated', done => {
-    request(app)
+    chai.request(app)
       .get('/api/advisor/all')
-      .expect(401)
-      .end(done);
+      .end((err, res) => {
+        expect(res).to.have.status(401);
+        done();
+      });
   });
 });
 
 describe('DELETE /api/advisor/logout', () => {
   it('should remove token from user and logout', done => {
-    request(app)
+    chai.request(app)
       .delete('/api/advisor/logout')
       .set('x-auth', users[0].tokens[0].token)
-      .expect(200)
-      .expect(res => {
-        expect(res.header['x-auth']).to.not.exist;
-      })
       .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.header['x-auth']).to.not.exist;
+
         if (err) return done(err);
         User.findById(users[0]._id).then(user => {
           expect(user.tokens).to.have.lengthOf(0);
@@ -182,24 +196,26 @@ describe('DELETE /api/advisor/logout', () => {
 
   });
   it('should not remove token if not authenticated', done => {
-    request(app)
+    chai.request(app)
       .delete('/api/advisor/logout')
-      .expect(401)
-      .end(done);
+      .end((err, res) => {
+        expect(res).to.have.status(401);
+        done();
+      });
   });
 });
 
 describe('PATCH /api/advisor/me', () => {
   it('should change password and logout', done => {
     const password = '123abc!123';
-    request(app)
+    chai.request(app)
       .patch('/api/advisor/me')
       .set('x-auth', users[0].tokens[0].token)
       .send({
         password,
       })
-      .expect(200)
       .end((err, res) => {
+        expect(res).to.have.status(200);
         if (err) return done(err);
         User.findById(users[0]._id).then(user => {
           bcrypt.compare(password, user.password, (err, res) => {
@@ -215,14 +231,14 @@ describe('PATCH /api/advisor/me', () => {
   it('should change and trim password and logout', done => {
     const password = '   123abc!123   ';
     const trimmedPassword = password.trim();
-    request(app)
+    chai.request(app)
       .patch('/api/advisor/me')
       .set('x-auth', users[0].tokens[0].token)
       .send({
         password,
       })
-      .expect(200)
       .end((err, res) => {
+        expect(res).to.have.status(200);
         if (err) return done(err);
         User.findById(users[0]._id).then(user => {
           bcrypt.compare(trimmedPassword, user.password, (err, res) => {
@@ -232,19 +248,18 @@ describe('PATCH /api/advisor/me', () => {
           });
         }).catch(err => done(err));
       });
-
   });
 
   it('should change displayName and keep logged in', done => {
     const displayName = 'Pedro Luis La Rosa Doganieri';
-    request(app)
+    chai.request(app)
       .patch('/api/advisor/me')
       .set('x-auth', users[0].tokens[0].token)
       .send({
         displayName,
       })
-      .expect(200)
       .end((err, res) => {
+        expect(res).to.have.status(200);
         if (err) return done(err);
         User.findById(users[0]._id).then(user => {
           expect(user.displayName).to.be.equal(displayName);
@@ -252,26 +267,28 @@ describe('PATCH /api/advisor/me', () => {
           done();
         }).catch(err => done(err));
       });
-
   });
 
   it('should not change password if invalid', done => {
     const password = '123';
-    request(app)
+    chai.request(app)
       .patch('/api/advisor/me')
       .set('x-auth', users[0].tokens[0].token)
       .send({
         password,
       })
-      .expect(400)
-      .end(done);
-
+      .end((err, res) => {
+        expect(res).to.have.status(400);
+        done();
+      });
   });
 
   it('should not change data if not authenticated', done => {
-    request(app)
+    chai.request(app)
       .patch('/api/advisor/me')
-      .expect(401)
-      .end(done);
+      .end((err, res) => {
+        expect(res).to.have.status(401);
+        done();
+      });
   });
 });
