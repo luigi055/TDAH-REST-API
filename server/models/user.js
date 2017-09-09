@@ -70,7 +70,6 @@ UserSchema.methods.toJSON = function () {
   return {
     _id,
     email,
-    password: userObject.password,
     displayName,
     avatar,
     signupDate,
@@ -110,6 +109,28 @@ UserSchema.methods.removeToken = function (token) {
         token, // Removes all tokens if  parameter is passed in empty
       }
     }
+  })
+}
+
+UserSchema.statics.findByIdAndChangeData = function (id, doc) {
+  const User = this;
+
+  if (doc.password) {
+    const trimmedpassword = doc.password.trim();
+    if (trimmedpassword.length < 6) {
+      return Promise.reject();
+    }
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(trimmedpassword, salt);
+    if (bcrypt.compareSync(trimmedpassword, hash)) {
+      doc.password = hash;
+    }
+  }
+
+  return User.findByIdAndUpdate(id, {
+    $set: doc,
+  }, {
+    $new: true,
   })
 }
 
@@ -160,7 +181,6 @@ UserSchema.statics.findByCredentials = function (email, password) {
 // encrypting our password with bcrypt.js
 UserSchema.pre('save', function (next) {
   const user = this;
-
   // Let's check if the password was modified
   // we'll use a built in method for this
 
@@ -181,32 +201,7 @@ UserSchema.pre('save', function (next) {
     next();
   }
 });
-// encrypting our password with bcrypt.js
-UserSchema.pre('update', function (next) {
-  const user = this;
-  // console.log(user.password)
-  next();
 
-  // Let's check if the password was modified
-  // we'll use a built in method for this
-
-  // if (user.isModified('password')) {
-  //   bcrypt.genSalt(10, (err, salt) => {
-  //     // Hashing password
-  //     bcrypt.hash(user.password, salt, (err, hash) => {
-  //       // if the user password is the same as hash then
-  //       // password will have a new value which is the encrypted
-  //       if (bcrypt.compare(user.password, hash)) {
-  //         user.password = hash
-  //         next();
-  //       }
-  //     });
-  //   });
-  // } else {
-  //   // if nothing was modified then go next
-  //   next();
-  // }
-});
 
 const User = mongoose.model('User', UserSchema);
 

@@ -142,6 +142,26 @@ describe('GET /api/advisor/me', () => {
   });
 });
 
+describe('GET /api/advisor/all', () => {
+  it('should get all exiting users', done => {
+    request(app)
+      .get('/api/advisor/all')
+      .set('x-auth', users[0].tokens[0].token)
+      .expect(200)
+      .expect(res => {
+        expect(res.body).to.be.an('array').that.have.lengthOf(3); // post test created an user
+      })
+      .end(done);
+  });
+
+  it('should not get all users if not authenticated', done => {
+    request(app)
+      .get('/api/advisor/all')
+      .expect(401)
+      .end(done);
+  });
+});
+
 describe('DELETE /api/advisor/logout', () => {
   it('should remove token from user and logout', done => {
     request(app)
@@ -160,11 +180,98 @@ describe('DELETE /api/advisor/logout', () => {
         }).catch(err => done(err));
       });
 
-    it('should not remove token if not authenticated', done => {
-      request(app)
-        .delete('/api/advisor/logout')
-        .expect(401)
-        .end(done);
-    });
+  });
+  it('should not remove token if not authenticated', done => {
+    request(app)
+      .delete('/api/advisor/logout')
+      .expect(401)
+      .end(done);
+  });
+});
+
+describe('PATCH /api/advisor/me', () => {
+  it('should change password and logout', done => {
+    const password = '123abc!123';
+    request(app)
+      .patch('/api/advisor/me')
+      .set('x-auth', users[0].tokens[0].token)
+      .send({
+        password,
+      })
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+        User.findById(users[0]._id).then(user => {
+          bcrypt.compare(password, user.password, (err, res) => {
+            expect(res).to.be.true;
+            expect(user.tokens).to.be.an('array').that.is.empty;
+            done();
+          });
+        }).catch(err => done(err));
+      });
+
+  });
+
+  it('should change and trim password and logout', done => {
+    const password = '   123abc!123   ';
+    const trimmedPassword = password.trim();
+    request(app)
+      .patch('/api/advisor/me')
+      .set('x-auth', users[0].tokens[0].token)
+      .send({
+        password,
+      })
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+        User.findById(users[0]._id).then(user => {
+          bcrypt.compare(trimmedPassword, user.password, (err, res) => {
+            expect(res).to.be.true;
+            expect(user.tokens).to.be.an('array').that.is.empty;
+            done();
+          });
+        }).catch(err => done(err));
+      });
+
+  });
+
+  it('should change displayName and keep logged in', done => {
+    const displayName = 'Pedro Luis La Rosa Doganieri';
+    request(app)
+      .patch('/api/advisor/me')
+      .set('x-auth', users[0].tokens[0].token)
+      .send({
+        displayName,
+      })
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+        User.findById(users[0]._id).then(user => {
+          expect(user.displayName).to.be.equal(displayName);
+          expect(user.tokens).to.have.lengthOf(1); //*
+          done();
+        }).catch(err => done(err));
+      });
+
+  });
+
+  it('should not change password if invalid', done => {
+    const password = '123';
+    request(app)
+      .patch('/api/advisor/me')
+      .set('x-auth', users[0].tokens[0].token)
+      .send({
+        password,
+      })
+      .expect(400)
+      .end(done);
+
+  });
+
+  it('should not change data if not authenticated', done => {
+    request(app)
+      .patch('/api/advisor/me')
+      .expect(401)
+      .end(done);
   });
 });

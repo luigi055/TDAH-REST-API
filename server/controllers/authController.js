@@ -22,6 +22,12 @@ function getUser(req, res) {
   res.send(req.user);
 }
 
+function getUsers(req, res) {
+  User.find({}).then(users => {
+    res.send(users);
+  }).catch(err => res.status(400).send());
+}
+
 function loginUser(req, res) {
   const {
     email,
@@ -51,30 +57,27 @@ function modifyUser(req, res) {
     body,
     token,
   } = req;
-  var hashed;
 
-  User.findByIdAndUpdate(req.user._id, {
-    $set: body,
-  }, {
-    $new: true,
-  }).then(user => {
+  User.findByIdAndChangeData(req.user._id, body).then(user => {
+
     if (!user) return res.status(404).send();
-
     if (body.password) {
       // remove token after change password
       req.user.removeToken(token).then(() => {
-        res.send();
+        res.send({
+          message: 'token removed',
+        });
       }).catch(err => res.status(400).send());
     } else {
       res.send(user);
     }
-
   }).catch(err => res.status(400).send());
 }
 
 module.exports = {
   postUser,
   getUser,
+  getUsers,
   loginUser,
   logoutUser,
   modifyUser,
