@@ -32,10 +32,10 @@ const UserSchema = new mongoose.Schema({
   displayName: String,
   avatar: String,
   signupDate: {
-    type: Date,
-    default: Date.now(),
+    type: Number,
+    default: new Date().getTime(),
   },
-  lastLogin: Date,
+  lastLogin: Number,
   tokens: [{
     access: {
       type: String,
@@ -88,7 +88,7 @@ UserSchema.methods.generateAuthToken = function () {
   ).toString();
 
   // Update last login
-  user.lastLogin = new Date();
+  user.lastLogin = new Date().getTime();
   user.tokens.push({
     access,
     token,
