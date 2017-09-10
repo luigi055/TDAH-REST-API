@@ -11,7 +11,7 @@ const {
 const expect = chai.expect;
 chai.use(chaiHTTP);
 
-populateUsers();
+beforeEach(populateUsers);
 
 describe('POST /api/advisor', () => {
   it('should add a brand new user', done => {
@@ -162,7 +162,7 @@ describe('GET /api/advisor/all', () => {
       .set('x-auth', users[0].tokens[0].token)
       .end((err, res) => {
         expect(res).to.have.status(200);
-        expect(res.body).to.be.an('array').that.have.lengthOf(3); // post test created an user
+        expect(res.body).to.be.an('array').that.have.lengthOf(2);
         done();
       });
   });
@@ -263,7 +263,7 @@ describe('PATCH /api/advisor/me', () => {
         if (err) return done(err);
         User.findById(users[0]._id).then(user => {
           expect(user.displayName).to.be.equal(displayName);
-          expect(user.tokens).to.have.lengthOf(1); //*
+          expect(user.tokens).to.have.lengthOf(1);
           done();
         }).catch(err => done(err));
       });

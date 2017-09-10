@@ -37,12 +37,11 @@ const users = [{
   tokens: [{
     access: 'auth',
     token: jwt.sign({
-      _id: userOneId.toHexString(),
+      _id: userTwoId.toHexString(),
       access: 'auth',
     }, process.env.JWT_SECRET).toString(),
   }],
 }];
-
 
 function populateUsers(done) {
   User.remove({}).then(() => {
@@ -53,7 +52,28 @@ function populateUsers(done) {
   }).then(() => done());
 }
 
+const patients = [{
+  _id: new ObjectID(),
+  name: 'Luis Alejandro',
+  lastname: 'Fernandez Torres',
+  age: 17,
+  _creator: userOneId,
+}, {
+  _id: new ObjectID(),
+  name: 'Marina Frivoberta',
+  lastname: 'Aldrigetti Latouche',
+  age: 16,
+  _creator: userTwoId,
+}];
+
+function populatePatients(done) {
+  Patient.remove({}).then(() => {
+    return Patient.insertMany(patients);
+  }).then(() => done());
+}
 module.exports = {
   users,
-  populateUsers
+  patients,
+  populateUsers,
+  populatePatients,
 };

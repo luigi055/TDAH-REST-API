@@ -20,15 +20,15 @@ const patientSchema = new mongoose.Schema({
     type: Number,
     validate: {
       validator: function (age) {
-        return age <= 10;
-      }
+        return age > 10;
+      },
+      message: 'El usuario no dispone de una edad correcta para esta aplicacion',
     },
-    message: 'El usuario no dispone de una edad correcta para esta aplicacion',
     required: [true, 'es necesario incorporar la edad del paciente'],
-    _creator: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-    }
+  },
+  _creator: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
   }
 });
 
