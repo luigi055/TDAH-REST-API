@@ -12,6 +12,6 @@ let hashedPass;
 //     })
 //   });
 // });
-bcrypt.compare('123abc!48', '$2a$10$CxRa3FyOmgSObjkyHNIYDO2D5wWq/qcnTJTDbuCmyADY/SQwKfaWq', (err, res) => {
+bcrypt.compare('123abc!', '$2a$10$wceB9FdQWhzD7jID8EzP2ueJFGaDR6yGTdq3MS67ZlFWjOVA3886W', (err, res) => {
   console.log(res);
 });

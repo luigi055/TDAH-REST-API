@@ -16,32 +16,38 @@ const users = [{
   email: 'test01@example.com',
   password: '123abc!',
   displayName: 'John Doe',
+  confirmed: false,
   avatar: null,
   signupDate: 1504461525129,
   lastLogin: 1504461525129,
   tokens: [{
     access: 'auth',
     token: jwt.sign({
-      _id: userOneId.toHexString(),
-      access: 'auth',
-    }, process.env.JWT_SECRET).toString(),
+        _id: userOneId.toHexString(),
+        access: 'auth',
+      },
+      process.env.JWT_SECRET
+    ).toString(),
   }],
 }, {
   _id: userTwoId,
   email: 'test02@example.com',
   password: '123abc!',
   displayName: 'Jane Doe',
+  confirmed: true,
   avatar: null,
   signupDate: 1504461525129,
   lastLogin: 1504461525129,
   tokens: [{
     access: 'auth',
     token: jwt.sign({
-      _id: userTwoId.toHexString(),
-      access: 'auth',
-    }, process.env.JWT_SECRET).toString(),
+        _id: userTwoId.toHexString(),
+        access: 'auth',
+      },
+      process.env.JWT_SECRET
+    ).toString(),
   }],
-}];
+}, ];
 
 function populateUsers(done) {
   User.remove({}).then(() => {
@@ -53,18 +59,20 @@ function populateUsers(done) {
 }
 
 const patients = [{
-  _id: new ObjectID(),
-  name: 'Luis Alejandro',
-  lastname: 'Fernandez Torres',
-  age: 17,
-  _creator: userOneId,
-}, {
-  _id: new ObjectID(),
-  name: 'Marina Frivoberta',
-  lastname: 'Aldrigetti Latouche',
-  age: 16,
-  _creator: userTwoId,
-}];
+    _id: new ObjectID(),
+    name: 'Luis Alejandro',
+    lastname: 'Fernandez Torres',
+    age: 17,
+    _creator: userOneId,
+  },
+  {
+    _id: new ObjectID(),
+    name: 'Marina Frivoberta',
+    lastname: 'Aldrigetti Latouche',
+    age: 16,
+    _creator: userTwoId,
+  }
+];
 
 function populatePatients(done) {
   Patient.remove({}).then(() => {

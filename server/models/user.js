@@ -29,6 +29,10 @@ const UserSchema = new mongoose.Schema({
     trim: true,
     minlength: 6,
   },
+  confirmed: {
+    type: Boolean,
+    default: false,
+  },
   displayName: String,
   avatar: String,
   signupDate: {
@@ -62,6 +66,7 @@ UserSchema.methods.toJSON = function () {
     _id,
     email,
     displayName,
+    confirmed,
     avatar,
     signupDate,
     lastLogin
@@ -71,6 +76,7 @@ UserSchema.methods.toJSON = function () {
     _id,
     email,
     displayName,
+    confirmed,
     avatar,
     signupDate,
     lastLogin
@@ -112,13 +118,24 @@ UserSchema.methods.removeToken = function (token) {
   })
 }
 
-UserSchema.statics.findByIdAndChangeData = function (id, doc) {
+UserSchema.statics.findByIdAndChangeData = function (id, doc, currentPassword) {
   const User = this;
-
+  doc.currentPassword = doc.currentPassword || ''; // compareSync just accepts strings as parameters
+  // to make any change you need first to introduce your current password
+  // check current password
+  if (!bcrypt.compareSync(doc.currentPassword, currentPassword)) {
+    return Promise.reject({
+      error: 'wrong password',
+      status: 401,
+    });
+  }
+  // End check current password
   if (doc.password) {
     const trimmedpassword = doc.password.trim();
     if (trimmedpassword.length < 6) {
-      return Promise.reject();
+      return Promise.reject({
+        error: 'invalid password this should be greater than 5 character',
+      });
     }
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(trimmedpassword, salt);
@@ -152,6 +169,67 @@ UserSchema.statics.findByToken = function (token) {
     '_id': decoded._id,
     // 'tokens.token': token,
     // 'tokens.access': 'auth',
+  });
+}
+
+UserSchema.statics.findByEmailTokenAndConfirm = function (token) {
+  const User = this;
+  var decoded;
+
+  try {
+    decoded = jwt.verify(token, process.env.EMAIL_SECRET);
+  } catch (err) {
+    return Promise.reject();
+  }
+
+  return User.findByIdAndUpdate(decoded._id, {
+    $set: {
+      confirmed: true,
+    },
+  });
+}
+
+UserSchema.statics.findByEmailTokenAndChangePassword = function (token, doc, currentPassword) {
+  const User = this;
+  var decoded;
+  doc.currentPassword = doc.currentPassword || ''; // compareSync just accepts strings as parameters
+
+  try {
+    decoded = jwt.verify(token, process.env.EMAIL_SECRET);
+  } catch (err) {
+    return Promise.reject();
+  }
+
+  if (doc.currentPassword) {
+    // check current password
+    if (!bcrypt.compareSync(doc.currentPassword, currentPassword)) {
+      return Promise.reject({
+        error: 'wrong password',
+        status: 401,
+      });
+    }
+  }
+
+  // End check current password
+  if (doc.password) {
+    const trimmedpassword = doc.password.trim();
+    if (trimmedpassword.length < 6) {
+      return Promise.reject({
+        error: 'invalid password this should be greater than 5 character',
+      });
+    }
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(trimmedpassword, salt);
+    if (bcrypt.compareSync(trimmedpassword, hash)) {
+      doc.password = hash;
+    }
+  }
+  return User.findByIdAndUpdate(decoded._id, {
+    $set: {
+      password: doc.password,
+    },
+  }, {
+    $new: true,
   });
 }
 

@@ -1,6 +1,7 @@
 const chai = require('chai');
 const chaiHTTP = require('chai-http');
 const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken');
 const app = require('./../server');
 const User = require('./../models/user');
 const {
@@ -134,6 +135,57 @@ describe('POST /api/advisor/login', () => {
   });
 });
 
+describe('GET /api/advisor/activation/:emailToken', () => {
+  it('should confirm an user', done => {
+    const user = users[0];
+    const emailToken = jwt.sign({
+      _id: user._id.toHexString(),
+    }, process.env.EMAIL_SECRET, {
+      expiresIn: '1d',
+    });
+    chai.request(app)
+      .get(`/api/advisor/activation/${emailToken}`)
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        User.findById(users[0]._id).then(user => {
+          expect(user.confirmed).to.be.true;
+          done();
+        }).catch(err => done(err));
+      });
+  });
+  it('should get error if token invalid', done => {
+    chai.request(app)
+      .get(`/api/advisor/activation/5s6a1as6dg51s`)
+      .end((err, res) => {
+        expect(res).to.have.status(400);
+        done();
+      });
+  });
+});
+
+describe('GET /api/advisor/activation', () => {
+  it('should send activation email to an user', done => {
+    const user = users[0];
+
+    chai.request(app)
+      .get(`/api/advisor/activation`)
+      .set('x-auth', users[0].tokens[0].token)
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        done();
+      });
+  });
+
+  it('should get error if not authenticated', done => {
+    chai.request(app)
+      .get(`/api/advisor/activation`)
+      .end((err, res) => {
+        expect(res).to.have.status(401);
+        done();
+      });
+  });
+});
+
 describe('GET /api/advisor/me', () => {
   it('should get the current logedin user', done => {
     chai.request(app)
@@ -212,6 +264,7 @@ describe('PATCH /api/advisor/me', () => {
       .patch('/api/advisor/me')
       .set('x-auth', users[0].tokens[0].token)
       .send({
+        currentPassword: users[0].password,
         password,
       })
       .end((err, res) => {
@@ -235,6 +288,7 @@ describe('PATCH /api/advisor/me', () => {
       .patch('/api/advisor/me')
       .set('x-auth', users[0].tokens[0].token)
       .send({
+        currentPassword: users[0].password,
         password,
       })
       .end((err, res) => {
@@ -256,6 +310,7 @@ describe('PATCH /api/advisor/me', () => {
       .patch('/api/advisor/me')
       .set('x-auth', users[0].tokens[0].token)
       .send({
+        currentPassword: users[0].password,
         displayName,
       })
       .end((err, res) => {
@@ -269,7 +324,36 @@ describe('PATCH /api/advisor/me', () => {
       });
   });
 
+  it('should not change displayName if currentPassword wasnt passed in', done => {
+    const displayName = 'Pedro Luis La Rosa Doganieri';
+    chai.request(app)
+      .patch('/api/advisor/me')
+      .set('x-auth', users[0].tokens[0].token)
+      .send({
+        displayName,
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(401);
+        done();
+      });
+  });
+
   it('should not change password if invalid', done => {
+    const password = '123';
+    chai.request(app)
+      .patch('/api/advisor/me')
+      .set('x-auth', users[0].tokens[0].token)
+      .send({
+        currentPassword: users[0].password,
+        password,
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(400);
+        done();
+      });
+  });
+
+  it('should not change password if currentPassword doesnt exist', done => {
     const password = '123';
     chai.request(app)
       .patch('/api/advisor/me')
@@ -278,7 +362,7 @@ describe('PATCH /api/advisor/me', () => {
         password,
       })
       .end((err, res) => {
-        expect(res).to.have.status(400);
+        expect(res).to.have.status(401);
         done();
       });
   });
