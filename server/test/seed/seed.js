@@ -55,7 +55,7 @@ function populateUsers(done) {
     const userTwo = new User(users[1]).save();
 
     return Promise.all([userOne, userTwo]);
-  }).then(() => done());
+  }).then(() => done()).catch(err => done(err));
 }
 
 const patients = [{

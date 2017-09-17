@@ -24,7 +24,7 @@ function successEmailPassword(newPassword, emailToSend) {
       };
 
       transporter.sendMail(mailOptions, (err, info) => {
-        if (error) {
+        if (err) {
           return console.log(err);
         }
         // console.log('Message sent: %s', info.messageId);
@@ -65,7 +65,7 @@ function emailConfirmation(user, hostname) {
       };
 
       transporter.sendMail(mailOptions, (err, info) => {
-        if (error) {
+        if (err) {
           return console.log(err);
         }
         // console.log('Message sent: %s', info.messageId);
@@ -109,8 +109,8 @@ function emailChangePwAuth(user, hostname) {
       };
 
       transporter.sendMail(mailOptions, (err, info) => {
-        if (error) {
-          return console.log(err);
+        if (err) {
+          throw new Error(err);
         }
         // console.log('Message sent: %s', info.messageId);
         // console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
@@ -128,7 +128,7 @@ function emailChangePw(user, hostname) {
       _id: user._id,
       email: user.email,
     }, process.env.EMAIL_SECRET, {
-      expiresIn: '21',
+      expiresIn: '2h',
     });
     const validationURL = `http://${hostname}/api/advisor/change-password/${emailToken}?email=${user.email}`;
 
@@ -150,7 +150,7 @@ function emailChangePw(user, hostname) {
       };
 
       transporter.sendMail(mailOptions, (err, info) => {
-        if (error) {
+        if (err) {
           return console.log(err);
         }
         // console.log('Message sent: %s', info.messageId);

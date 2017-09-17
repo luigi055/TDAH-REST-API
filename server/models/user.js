@@ -197,7 +197,10 @@ UserSchema.statics.findByEmailTokenAndChangePassword = function (token, doc, cur
   try {
     decoded = jwt.verify(token, process.env.EMAIL_SECRET);
   } catch (err) {
-    return Promise.reject();
+    return Promise.reject({
+      error: 'error when trying to verify token',
+      status: 404,
+    });
   }
 
   if (doc.currentPassword) {
@@ -216,6 +219,7 @@ UserSchema.statics.findByEmailTokenAndChangePassword = function (token, doc, cur
     if (trimmedpassword.length < 6) {
       return Promise.reject({
         error: 'invalid password this should be greater than 5 character',
+        status: 404,
       });
     }
     const salt = bcrypt.genSaltSync(10);

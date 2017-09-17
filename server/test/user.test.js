@@ -376,3 +376,239 @@ describe('PATCH /api/advisor/me', () => {
       });
   });
 });
+
+describe('POST /api/advisor/change-password', () => {
+  it('should send email for change pasword request', done => {
+    chai.request(app)
+      .post('/api/advisor/change-password')
+      .send({
+        email: users[0].email,
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        done();
+      });
+  });
+
+  it('should not send email for change pasword request if invalid email', done => {
+    chai.request(app)
+      .post('/api/advisor/change-password')
+      .send({
+        email: 'luigi.com',
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(404);
+        done();
+      });
+  });
+});
+
+describe('GET /api/advisor/change-password', () => {
+  it('should send email for change pasword request', done => {
+    chai.request(app)
+      .get('/api/advisor/change-password')
+      .set('x-auth', users[0].tokens[0].token)
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        done();
+      });
+  });
+
+  it('should not send email for change pasword request if not authenticated', done => {
+    chai.request(app)
+      .get('/api/advisor/change-password')
+      .end((err, res) => {
+        expect(res).to.have.status(401);
+        done();
+      });
+  });
+});
+
+describe('PATCH /api/advisor/auth-change-password/:emailToken', () => {
+  it('should change password', done => {
+    const user = users[0];
+    const newPassword = '123abc!50';
+    const emailToken = jwt.sign({
+      _id: users[0]._id.toHexString(),
+      email: users[0].email,
+    }, process.env.EMAIL_SECRET, {
+      expiresIn: '2h',
+    });
+
+    chai.request(app)
+      .patch(`/api/advisor/auth-change-password/${emailToken}`)
+      .set('x-auth', user.tokens[0].token)
+      .send({
+        currentPassword: user.password,
+        password: newPassword,
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        User.findById(user._id).then(user => {
+          expect(bcrypt.compareSync(newPassword, user.password)).to.be.true;
+          done();
+        }).catch(err => done(err));
+      });
+  });
+
+  it('should not change password if current password isnt provided', done => {
+    const user = users[0];
+    const newPassword = '123abc!50';
+    const emailToken = jwt.sign({
+      _id: user._id.toHexString(),
+      email: user.email,
+    }, process.env.EMAIL_SECRET, {
+      expiresIn: '2h',
+    });
+
+    chai.request(app)
+      .patch(`/api/advisor/auth-change-password/${emailToken}`)
+      .set('x-auth', user.tokens[0].token)
+      .send({
+        password: newPassword,
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(401);
+        done();
+      });
+  });
+
+  it('should not change password if current password invalid', done => {
+    const user = users[0];
+    const newPassword = '123abc!50';
+    const emailToken = jwt.sign({
+      _id: user._id.toHexString(),
+      email: user.email,
+    }, process.env.EMAIL_SECRET, {
+      expiresIn: '2h',
+    });
+
+    chai.request(app)
+      .patch(`/api/advisor/auth-change-password/${emailToken}`)
+      .set('x-auth', user.tokens[0].token)
+      .send({
+        currentPassword: '1234567',
+        password: newPassword,
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(401);
+        done();
+      });
+  });
+
+  it('should not change password if new password invalid', done => {
+    const user = users[0];
+    const newPassword = '123abc!50';
+    const emailToken = jwt.sign({
+      _id: user._id.toHexString(),
+      email: user.email,
+    }, process.env.EMAIL_SECRET, {
+      expiresIn: '2h',
+    });
+
+    chai.request(app)
+      .patch(`/api/advisor/auth-change-password/${emailToken}`)
+      .set('x-auth', user.tokens[0].token)
+      .send({
+        currentPassword: user.password,
+        password: '123',
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(404);
+        done();
+      });
+  });
+
+  it('should get error if token invalid', done => {
+    chai.request(app)
+      .patch(`/api/advisor/auth-change-password/5s6a1as6dg51s`)
+      .set('x-auth', users[0].tokens[0].token)
+      .end((err, res) => {
+        expect(res).to.have.status(401);
+        done();
+      });
+  });
+});
+describe('PATCH /api/advisor/change-password/:emailToken?email=', () => {
+  it('should change password', done => {
+    const user = users[0];
+    const emailToken = jwt.sign({
+      _id: user._id.toHexString(),
+      email: user.email,
+    }, process.env.EMAIL_SECRET, {
+      expiresIn: '2h',
+    });
+    const newPassword = '123abc!50';
+
+    chai.request(app)
+      .patch(`/api/advisor/change-password/${emailToken}?email=${user.email}`)
+      .send({
+        password: newPassword,
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        User.findById(user._id).then(user => {
+          expect(bcrypt.compareSync(newPassword, user.password)).to.be.true;
+          done();
+        }).catch(err => done(err));
+      });
+  });
+
+  it('should not change password if password invalid', done => {
+    const user = users[0];
+    const emailToken = jwt.sign({
+      _id: user._id.toHexString(),
+      email: user.email,
+    }, process.env.EMAIL_SECRET, {
+      expiresIn: '2h',
+    });
+    const newPassword = '123';
+
+    chai.request(app)
+      .patch(`/api/advisor/change-password/${emailToken}?email=${user.email}`)
+      .send({
+        password: newPassword,
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(404);
+        done();
+      });
+  });
+
+  it('should not change password if token invalid', done => {
+    const user = users[0];
+    const newPassword = '123abc!50';
+
+    chai.request(app)
+      .patch(`/api/advisor/change-password/${'fr6g1a6g5a1rg'}?email=${user.email}`)
+      .send({
+        password: newPassword,
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(404);
+        done();
+      });
+  });
+
+  it('should not change password if email is invalid', done => {
+    const user = users[0];
+    const emailToken = jwt.sign({
+      _id: user._id.toHexString(),
+      email: user.email,
+    }, process.env.EMAIL_SECRET, {
+      expiresIn: '2h',
+    });
+    const newPassword = '123abc!50';
+
+    chai.request(app)
+      .patch(`/api/advisor/change-password/${emailToken}?email=${'luigi.com'}`)
+      .send({
+        password: newPassword,
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(404);
+        done();
+      });
+  });
+
+});

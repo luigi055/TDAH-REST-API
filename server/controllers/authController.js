@@ -2,6 +2,9 @@
 
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
+const {
+  isEmail
+} = require('validator');
 const mongoose = require('./../db/mongoose');
 const User = require('./../models/user');
 const {
@@ -131,6 +134,12 @@ function changePasswordRequest(req, res) {
     email
   } = req.body;
 
+  if (!email) {
+    res.status(404).send({
+      error: 'Provide an email'
+    })
+  }
+
   User.findOne({
     email,
   }).then(user => {
@@ -190,6 +199,12 @@ function changePassword(req, res) {
     },
     body
   } = req
+
+  if (!email || !isEmail(email)) {
+    res.status(404).send({
+      error: 'invalid email',
+    });
+  }
 
   const newPw = body.password;
 
