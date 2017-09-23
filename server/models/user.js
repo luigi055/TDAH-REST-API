@@ -129,6 +129,7 @@ UserSchema.statics.findByIdAndChangeData = function (id, doc, currentPassword) {
       status: 401,
     });
   }
+
   // End check current password
   if (doc.password) {
     const trimmedpassword = doc.password.trim();
@@ -283,7 +284,6 @@ UserSchema.pre('save', function (next) {
     next();
   }
 });
-
 
 const User = mongoose.model('User', UserSchema);
 

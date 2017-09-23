@@ -529,6 +529,7 @@ describe('PATCH /api/advisor/auth-change-password/:emailToken', () => {
       });
   });
 });
+
 describe('PATCH /api/advisor/change-password/:emailToken?email=', () => {
   it('should change password', done => {
     const user = users[0];

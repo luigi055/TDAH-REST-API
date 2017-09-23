@@ -1,9 +1,9 @@
 'use strict';
 
-const mongoose = require ('mongoose');
-const validator = require ('validator');
+const mongoose = require('mongoose');
+const validator = require('validator');
 
-const patientSchema = new mongoose.Schema ({
+const patientSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -20,7 +20,7 @@ const patientSchema = new mongoose.Schema ({
     type: Number,
     validate: {
       validator: function (age) {
-        return age > 10;
+        return age > 1;
       },
       message: 'El usuario no dispone de una edad correcta para esta aplicacion',
     },
@@ -32,6 +32,6 @@ const patientSchema = new mongoose.Schema ({
   },
 });
 
-const Patient = mongoose.model ('Patient', patientSchema);
+const Patient = mongoose.model('Patient', patientSchema);
 
 module.exports = Patient;
