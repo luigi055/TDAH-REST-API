@@ -1,8 +1,8 @@
-#TDAH REST API
+# TDAH REST API
 
 This is the documentation of the api used in the TDAH WebApp, the api is structure in two simple parts __Authentication__ and __Patients__ where authentication will be responsable to keep the information of patients organized for every user and keep them secret for each Adivsor's patients. and Patient will store all the data related to every patient.
 
-##API Content
+## API Content
 - [Tech Stack](#tech-stack)
 - [Authentication](#authentication)
   - [User Data Structure](#user-data-structure)
@@ -28,12 +28,12 @@ This is the documentation of the api used in the TDAH WebApp, the api is structu
 -  [License](#license)
 -  [Acknowledgments](#acknowledgments)
 
-##Tech Stack
-###Node.js & Javascript:
+## Tech Stack
+### Node.js & Javascript:
 This RESTful API was created enterelly using Javascript using modern Syntax in the Node.js Enviroment version 6+ LTS. And using Express 4 Framework for the server and the database used was the popular noSQL MongoDB with the mongoose ODM 4+. and finally using JSON format for data transfer.
 
-##Authentication
-###User Data Structure
+## Authentication
+### User Data Structure
 Data structure of each user created automatically when sign up.
 ```
 {
@@ -50,7 +50,7 @@ Data structure of each user created automatically when sign up.
   ]
 }
 ```
-###Creating User
+### Creating User
 For creating a new user just make a POST request in /api/advisor and provide your email, Fullname and password.
 
 ```
@@ -69,7 +69,7 @@ Once you send the POST request this new user will hash the password and asign a 
 
 validation to true don't block any feature in the rest api. this may be used in the frontend to control some characteristics.
 
-###Validating User
+### Validating User
 
 When you create a new user. this process automatically send to the user email a confirmation email (see in the Creating User section for further information). but if you need you could request a new conformation email in case the user havent receive the email, accidentally remove the email from his inbox or just in the case the previous url expired.
 
@@ -79,7 +79,7 @@ __YOU SHOULD BE LOGGED IN IN ORDER TO REQUEST VERIFICATION EMAIL (HAVE AN AUTH T
 GET REQUEST: /api/advisor/activation
 ```
 
-###Request User
+### Request User
 you can get the information where you're currently logged in getting the information of your user token.
 
 __REQUIRE AUTH TOKEN__
@@ -96,7 +96,7 @@ __REQUIRE AUTH TOKEN__
 GET REQUEST: /api/advisor/all
 ```
 
-###Login
+### Login
 when the user doesn't have a active auth token (if not logged in) in order to access to the data information of your user you should login using your registered email and password.
 
 Once you logged in successfully the user receive a auth token.
@@ -112,7 +112,7 @@ Sending to body:
 }
 ```
 
-###Logout
+### Logout
 for logout cases you need to be logged in (having an auth token) when you make a __DELETE__ request to  /api/advisor/logout, the user automatically will remove his auth token losing access for his user data and his patient's. in order to access again to his information the user should login again.
 
 __REQUIRE AUTH TOKEN__
@@ -121,7 +121,7 @@ __REQUIRE AUTH TOKEN__
 DELETE REQUEST: /api/advisor/logout
 ```
 
-###Modifying User Data
+### Modifying User Data
 When the user is logged in the user can change his data whenever he wants. for all case the user have to provide his current password in order to apply this changes.
 if the user changed his password. the auth token will be removed.
 
@@ -142,7 +142,7 @@ Sending to body whatever information you'd like to modify:
 
 __you can also change the pasword with this request but this is not the prefferred way. [Changing Password](#changing-password) and [Forgotten Password](#forgotten-password) are better for this task since they send email notification and verification in order to change the password specifically__
 
-###Changing Password
+### Changing Password
 this is the preferred method to change the user password. once the request is made. the user will receive an email with an URL where authorize the change of password
 
 __REQUIRE AUTH TOKEN__
@@ -165,7 +165,7 @@ the user have to provide its __Current Password__ in order to change it:
 
 Once the password is changed the user token will be removed forcing to login again.
 
-###Forgotten Password
+### Forgotten Password
 If user want to change its password without an auth token. it can be made using this route passing in its email address.
 
 ```
@@ -193,8 +193,8 @@ the user have to provide its __Current Password__ in order to change it:
 
 once the password was change the user can access using the new one.
 
-##Patients
-###User Data Structure
+## Patients
+### User Data Structure
 Data structure of each Patient created by an user.
 note the _creator property. this will created inmmediatly when an user register a new patient. what this have is the user's id who create the patient.
 ```
@@ -208,7 +208,7 @@ note the _creator property. this will created inmmediatly when an user register 
 }
 ```
 
-###Creating New Patient
+### Creating New Patient
 the user must be loggedin in order to register a new patient.
 this create a new patient thats will be global to the patients collection but linked to its user creator
 
@@ -227,7 +227,7 @@ Sending to body:
   "avance": "80", (optional)
 }
 ```
-###Getting Single Patient
+### Getting Single Patient
 you can get information of a single patient using the patients' id. this will get all the current data oof this specific patient
 
 __REQUIRE AUTH TOKEN__
@@ -236,7 +236,7 @@ __REQUIRE AUTH TOKEN__
 GET REQUEST: /api/patients/:id
 ```
 
-###Getting All Patient
+### Getting All Patient
 request data from all patients the user have
 
 __REQUIRE AUTH TOKEN__
@@ -245,7 +245,7 @@ __REQUIRE AUTH TOKEN__
 GET REQUEST: /api/patients/
 ```
 
-###Deleting Patient
+### Deleting Patient
 delete an especific patient using its id
 
 __REQUIRE AUTH TOKEN__
@@ -254,7 +254,7 @@ __REQUIRE AUTH TOKEN__
 DELETE REQUEST: /api/patients/:id
 ```
 
-###Modifing Patient Information
+### Modifing Patient Information
 the user can modify all information it needs of his patients. inclusive, __he can transfer the patient to other using knowing the User id of that user (in front end application)__. 
 
 __REQUIRE AUTH TOKEN__
@@ -285,13 +285,13 @@ Sending to body:
 
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/luigi055/TDAH-REST-API/tags).
 
-##Authors
+## Authors
 -  __[Luigi055](https://github.com/luigi055)__
 -  __[Osman8a](https://github.com/Osman8a)__
 
 See also the list of [contributors](https://github.com/luigi055/TDAH-REST-API/contributors) who participated in this project.
 
-##License
+## License
 This project is licensed under the MIT License.
 
 ## Acknowledgments
