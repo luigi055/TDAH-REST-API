@@ -279,6 +279,7 @@ Sending to body:
 * [JSON Web Tokens](https://jwt.io/) - for tokenize authentication
 * [bcrypt.js](https://www.npmjs.com/package/bcryptjs) - hashing passwords
 * [NodeMailer](https://nodemailer.com/about/) - Handle emails
+* [Git Flow](https://danielkummer.github.io/git-flow-cheatsheet/) - handle Versioning
 
 ## Versioning
 
