@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 //============ HOW TO CONFIGURE================
 // create a file called config.js besids of this file
@@ -22,11 +22,11 @@
 //   },
 // }
 
-const env = process.env.NODE_ENV || 'development';
+const env = process.env.NODE_ENV || "development";
 console.log(`°**-. Enviroment: ${env} .-**°`);
 
-if (env === 'test' || env === 'development') {
-  const config = require('./config.json');
+if (env === "test" || env === "development") {
+  const config = require("./config.json");
   const configEnv = config[env];
 
   Object.keys(configEnv).forEach(key => {
