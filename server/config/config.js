@@ -1,7 +1,7 @@
 "use strict";
 
 //============ HOW TO CONFIGURE================
-// create a file called config.js besids of this file
+// create a file called config.json besids of this file
 // and add the data as below
 // {
 //   "development": {
@@ -19,7 +19,7 @@
 //     "EMAIL_USER": "email@test.com",
 //     "EMAIL_PASSWORD": "123abc!",
 //     "EMAIL_SECRET": "[= RANDOM SECRET VALUE =]"
-//   },
+//   }
 // }
 
 const env = process.env.NODE_ENV || "development";

@@ -17,7 +17,7 @@ function successEmailPassword(newPassword, emailToSend) {
       });
 
       const mailOptions = {
-        from: '"Pedro La Rosa 👻" <' + process.env.EMAIL_USER + '>', // sender address
+        from: '"TDAH ABC 👻" <' + process.env.EMAIL_USER + '>', // sender address
         to: `${emailToSend}`, // list of receivers
         subject: 'Success Changing your Password', // Subject line
         html: `Your password was changed with success <br> this is your new password <br> <b>${newPassword}</b>`, // html body
@@ -58,7 +58,7 @@ function emailConfirmation(user, hostname) {
       });
 
       const mailOptions = {
-        from: '"Pedro La Rosa 👻" <' + process.env.EMAIL_USER + '>', // sender address
+        from: '"TDAH ABC 👻" <' + process.env.EMAIL_USER + '>', // sender address
         to: `${user.email}`, // list of receivers
         subject: 'Confirmation Email', // Subject line
         html: `You\'re almost there creating your new account. the last step is confirm your email <br> <a href="${validationURL}">${validationURL}</a>`, // html body
