@@ -8,6 +8,7 @@ function cors (req, res, next) {
     'Access-Control-Allow-Headers',
     'Access-Control-Allow-Headers, Origin,Accept, x-auth, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers'
   );
+  res.header ('Access-Control-Expose-Headers', 'x-auth');
   next ();
 }
 
