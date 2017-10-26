@@ -44,6 +44,8 @@ Data structure of each user created automatically when sign up.
   "avatar": String,
   "signupDate": Number,
   "lastLogin": Number,
+  "workplace": String,
+  "location": String, 
   "tokens": [
     "access": String,
     "token": String
@@ -62,6 +64,8 @@ Sending to body:
   "email": "test@email.com",
   "password": "123abc!",
   "displayName": "Jhon Doe"
+  "workplace": "Center for Disease Control and Prevention",
+  "location": "Miami, FLorida", 
 }
 ```
 
