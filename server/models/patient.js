@@ -28,6 +28,7 @@ const patientSchema = new mongoose.Schema({
   },
   _creator: {
     type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
     required: true
   }
 });

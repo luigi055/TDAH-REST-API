@@ -76,11 +76,6 @@ function getUser(req, res) {
 }
 
 function getUsers(req, res) {
-  // User.find({}, (err, user) => {
-  //   Patient.populate(user, { path: "patients" }, (err, user) => {
-  //     res.status(200).send(user);
-  //   });
-  // });
   User.find({}, (err, user) => {
     if (err) res.status(500).send({ message: `Error en la peticion ${err}` });
     if (!user)
