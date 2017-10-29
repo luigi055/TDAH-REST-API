@@ -7,7 +7,7 @@ const User = require("./../models/user");
 const { users, populateUsers } = require("./seed/seed");
 
 const expect = chai.expect;
-chai.use (chaiHTTP);
+chai.use(chaiHTTP);
 
 beforeEach(populateUsers);
 
@@ -21,14 +21,14 @@ describe("POST /api/advisor", () => {
       .post("/api/advisor")
       .send({
         email,
-        password,
+        password
       })
       .end((err, res) => {
         expect(res).to.have.status(200);
         expect(res.header["x-auth"]).to.exist;
         expect(res.body.email).to.be.equal("luigi4@test.com");
 
-        if (err) return done (err);
+        if (err) return done(err);
         // We'll find the new user created
         User.findOne({
           email
@@ -56,9 +56,9 @@ describe("POST /api/advisor", () => {
         email: "john@mai",
         password: "45s"
       })
-      .end ((err, res) => {
-        expect (res).to.have.status (400);
-        done ();
+      .end((err, res) => {
+        expect(res).to.have.status(400);
+        done();
       });
   });
 
@@ -72,9 +72,9 @@ describe("POST /api/advisor", () => {
         email,
         password
       })
-      .end ((err, res) => {
-        expect (res).to.have.status (400);
-        done ();
+      .end((err, res) => {
+        expect(res).to.have.status(400);
+        done();
       });
   });
 });
@@ -121,9 +121,9 @@ describe("POST /api/advisor/login", () => {
         email: "luigi@test",
         password: "123"
       })
-      .end ((err, res) => {
-        expect (res).to.have.status (404);
-        done ();
+      .end((err, res) => {
+        expect(res).to.have.status(404);
+        done();
       });
   });
 
@@ -135,9 +135,9 @@ describe("POST /api/advisor/login", () => {
         email: "saitama@hotmail.com",
         password: "123abc!"
       })
-      .end ((err, res) => {
-        expect (res).to.have.status (404);
-        done ();
+      .end((err, res) => {
+        expect(res).to.have.status(404);
+        done();
       });
   });
 });
@@ -320,28 +320,6 @@ describe("PATCH /api/advisor/me", () => {
         currentPassword: users[0].password,
         password
       })
-      .end ((err, res) => {
-        expect (res).to.have.status (200);
-        if (err) return done (err);
-        User.findById (users[0]._id)
-          .then (user => {
-            bcrypt.compare (trimmedPassword, user.password, (err, res) => {
-              expect (res).to.be.true;
-              expect (user.tokens).to.be.an ('array').that.is.empty;
-              done ();
-            });
-          })
-          .catch (err => done (err));
-      });
-  });
-
-  it ('should change displayName and keep logged in', done => {
-    const displayName = 'Pedro Luis La Rosa Doganieri';
-    chai
-      .request (app)
-      .patch ('/api/advisor/me')
-      .set ('x-auth', users[0].tokens[0].token)
-      .send ({
       .end((err, res) => {
         expect(res).to.have.status(200);
         if (err) return done(err);
@@ -389,9 +367,9 @@ describe("PATCH /api/advisor/me", () => {
       .send({
         displayName
       })
-      .end ((err, res) => {
-        expect (res).to.have.status (401);
-        done ();
+      .end((err, res) => {
+        expect(res).to.have.status(401);
+        done();
       });
   });
 
@@ -405,9 +383,9 @@ describe("PATCH /api/advisor/me", () => {
         currentPassword: users[0].password,
         password
       })
-      .end ((err, res) => {
-        expect (res).to.have.status (400);
-        done ();
+      .end((err, res) => {
+        expect(res).to.have.status(400);
+        done();
       });
   });
 
@@ -420,9 +398,9 @@ describe("PATCH /api/advisor/me", () => {
       .send({
         password
       })
-      .end ((err, res) => {
-        expect (res).to.have.status (401);
-        done ();
+      .end((err, res) => {
+        expect(res).to.have.status(401);
+        done();
       });
   });
 
@@ -445,9 +423,9 @@ describe("POST /api/advisor/change-password", () => {
       .send({
         email: users[0].email
       })
-      .end ((err, res) => {
-        expect (res).to.have.status (200);
-        done ();
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        done();
       });
   });
 
@@ -458,9 +436,9 @@ describe("POST /api/advisor/change-password", () => {
       .send({
         email: "luigi.com"
       })
-      .end ((err, res) => {
-        expect (res).to.have.status (404);
-        done ();
+      .end((err, res) => {
+        expect(res).to.have.status(404);
+        done();
       });
   });
 });
@@ -543,9 +521,9 @@ describe("PATCH /api/advisor/auth-change-password/:emailToken", () => {
       .send({
         password: newPassword
       })
-      .end ((err, res) => {
-        expect (res).to.have.status (401);
-        done ();
+      .end((err, res) => {
+        expect(res).to.have.status(401);
+        done();
       });
   });
 
@@ -571,9 +549,9 @@ describe("PATCH /api/advisor/auth-change-password/:emailToken", () => {
         currentPassword: "1234567",
         password: newPassword
       })
-      .end ((err, res) => {
-        expect (res).to.have.status (401);
-        done ();
+      .end((err, res) => {
+        expect(res).to.have.status(401);
+        done();
       });
   });
 
@@ -599,9 +577,9 @@ describe("PATCH /api/advisor/auth-change-password/:emailToken", () => {
         currentPassword: user.password,
         password: "123"
       })
-      .end ((err, res) => {
-        expect (res).to.have.status (404);
-        done ();
+      .end((err, res) => {
+        expect(res).to.have.status(404);
+        done();
       });
   });
 
@@ -669,9 +647,9 @@ describe("PATCH /api/advisor/change-password/:emailToken?email=", () => {
       .send({
         password: newPassword
       })
-      .end ((err, res) => {
-        expect (res).to.have.status (404);
-        done ();
+      .end((err, res) => {
+        expect(res).to.have.status(404);
+        done();
       });
   });
 
@@ -687,9 +665,9 @@ describe("PATCH /api/advisor/change-password/:emailToken?email=", () => {
       .send({
         password: newPassword
       })
-      .end ((err, res) => {
-        expect (res).to.have.status (404);
-        done ();
+      .end((err, res) => {
+        expect(res).to.have.status(404);
+        done();
       });
   });
 
@@ -713,9 +691,9 @@ describe("PATCH /api/advisor/change-password/:emailToken?email=", () => {
       .send({
         password: newPassword
       })
-      .end ((err, res) => {
-        expect (res).to.have.status (404);
-        done ();
+      .end((err, res) => {
+        expect(res).to.have.status(404);
+        done();
       });
   });
 });
