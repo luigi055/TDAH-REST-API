@@ -13,7 +13,7 @@ function addPatient(req, res) {
   patient
     .save()
     .then(patient => {
-      res.send(user);
+      res.send(patient);
       User.update(
         {
           _id: req.user._id
@@ -26,14 +26,10 @@ function addPatient(req, res) {
       )
         .then(user => {
           if (!user) {
-            console.log(`usuario no encontrado ${user}`);
-          } else {
-            console.log(`paciente agregado`);
+            return res.status(404).send();
           }
         })
-        .catch(err => {
-          console.log(`valor no encontrado ${err}`);
-        });
+        .catch(err => err => res.status(400).send(err));
     })
     .catch(err => res.status(400).send(err));
 }
@@ -95,28 +91,19 @@ function deletePatient(req, res) {
         return res.status(404).send({
           error: "patient not found"
         });
-      } else {
-        User.update(
-          {
-            _id: req.user._id
-          },
-          {
-            $pull: {
-              patients: patient._id
+      }
+
+      User.findByIdAndUpdate(patient._creator).then(user => {
+        user.update({
+          // $pull remove propeties from arrays
+          $pull: {
+            patients: {
+              patient
             }
           }
-        )
-          .then(user => {
-            if (!user) {
-              console.log(`paciente no encontrado en usuario`);
-            } else {
-              console.log(`paciente eliminado`);
-            }
-          })
-          .catch(err => {
-            console.log(`valor no encontrado ${err}`);
-          });
-      }
+        });
+      });
+
       res.send(patient);
     })
     .catch(err =>

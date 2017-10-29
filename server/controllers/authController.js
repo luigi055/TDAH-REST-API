@@ -71,21 +71,26 @@ function resendConfirmation(req, res) {
 }
 
 function getUser(req, res) {
-  // comes from auth middleware
-  res.send(req.user);
+  User.findOne(req.user._id)
+    .populate({ path: "patients" })
+    .exec((err, patient) => {})
+    .then(user => {
+      if (!user)
+        return res.status(404).send({ message: "los usarios no existen" });
+      res.status(200).send(user);
+    })
+    .catch(err => res.status(400).send());
 }
 
 function getUsers(req, res) {
-  User.find({}, (err, user) => {
-    if (err) res.status(500).send({ message: `Error en la peticion ${err}` });
-    if (!user)
-      return res.status(404).send({ message: "los usarios no existen" });
-    res.status(200).send({ user });
-  })
+  User.find({})
     .populate({ path: "patients" })
-    .exec((err, patient) => {
-      console.log(patient[0]);
-    });
+    .exec((err, patient) => {})
+    .then(users => {
+      if (!users) return res.status(404).send();
+      res.status(200).send(users);
+    })
+    .catch(err => res.status(400).send());
 }
 
 function loginUser(req, res) {
