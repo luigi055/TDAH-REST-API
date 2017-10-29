@@ -9,6 +9,10 @@
     "test": "export NODE_ENV=test || SET \"NODE_ENV=test\" && mocha server/**/*.test.js",
     "test-watch": "nodemon --exec \"npm run test\""
   },
+  "engines": {
+    "node": "6.11.2",
+    "npm": "3.10.10"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
