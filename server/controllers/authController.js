@@ -5,6 +5,8 @@ const jwt = require("jsonwebtoken");
 const { isEmail } = require("validator");
 const mongoose = require("./../db/mongoose");
 const User = require("./../models/user");
+const Patient = require("./../models/patient");
+
 const {
   successEmailPassword,
   emailConfirmation,
@@ -13,8 +15,19 @@ const {
 } = require("./../emails/sendMails");
 
 function postUser(req, res) {
-  const { body } = req;
-  const user = new User(body);
+  var patient;
+  patient = req.body.patients;
+  const user = new User();
+  user.email = req.body.email;
+  user.password = req.body.password;
+  user.displayName = req.body.displayName;
+  user.avatar = req.body.avatar;
+  user.workplace = req.body.workplace;
+  user.location = req.body.location;
+  //for (var i = 0; i < patient.length; i++) {
+  user.patients = patient;
+  // console.log(`aqui esta el numero ${[i]}, ${patient[i]}`);
+  //}
 
   user
     .save()
@@ -58,14 +71,24 @@ function resendConfirmation(req, res) {
 }
 
 function getUser(req, res) {
-  // comes from auth middleware
-  res.send(req.user);
+  User.findOne(req.user._id)
+    .populate({ path: "patients" })
+    .exec((err, patient) => {})
+    .then(user => {
+      if (!user)
+        return res.status(404).send({ message: "los usarios no existen" });
+      res.status(200).send(user);
+    })
+    .catch(err => res.status(400).send());
 }
 
 function getUsers(req, res) {
   User.find({})
+    .populate({ path: "patients" })
+    .exec((err, patient) => {})
     .then(users => {
-      res.send(users);
+      if (!users) return res.status(404).send();
+      res.status(200).send(users);
     })
     .catch(err => res.status(400).send());
 }
